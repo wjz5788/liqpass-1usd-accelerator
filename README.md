@@ -46,10 +46,12 @@ liqpass-frontend/
 │   │   ├── InsurancePage.tsx  # 保险区
 │   │   └── accelerator/
 │   │       └── MemeBoardPage.tsx # MemeBoard页面
+│   ├── entries/            # 应用入口文件
+│   │   ├── main.tsx        # 主应用入口
+│   │   └── meme-board-main.tsx # MemeBoard独立入口
 │   ├── App.tsx             # 路由配置
-│   ├── main.tsx            # 应用入口
-│   ├── meme-board-main.tsx # MemeBoard独立入口
 │   └── index.css           # 全局样式
+├── index.html              # 主应用HTML入口
 ├── meme-board.html         # MemeBoard HTML入口
 ├── package.json            # 项目配置
 ├── vite.config.ts          # Vite 配置
@@ -61,13 +63,22 @@ liqpass-frontend/
 ## 🚀 快速开始
 
 ### 环境要求
-- Node.js 16+ 
-- npm 或 yarn
+- **Node.js**: 18+ （推荐使用 LTS 版本）
+- **包管理器**: npm 或 yarn
 
 ### 安装依赖
 ```bash
 npm install
 ```
+
+### 环境变量配置
+
+1. 复制环境变量模板文件：
+```bash
+cp .env.example .env
+```
+
+2. 根据实际情况修改 `.env` 文件中的配置项
 
 ### 开发模式
 ```bash
@@ -83,6 +94,39 @@ npm run build
 ### 预览构建结果
 ```bash
 npm run preview
+```
+
+## 🚀 部署方式
+
+### Vercel 部署
+
+1. 登录 Vercel 账号
+2. 导入 GitHub 仓库
+3. 配置构建命令和输出目录：
+   - 构建命令：`npm run build`
+   - 输出目录：`dist`
+4. 配置环境变量
+5. 点击 "Deploy" 按钮
+
+### 本地服务器部署
+
+```bash
+# 构建项目
+npm run build
+
+# 使用静态文件服务器（需要全局安装 serve）
+npm install -g serve
+serve -s dist
+```
+
+### Docker 部署
+
+```bash
+# 构建 Docker 镜像
+docker build -t liqpass-frontend .
+
+# 运行 Docker 容器
+docker run -p 80:80 liqpass-frontend
 ```
 
 ## 📋 页面功能说明

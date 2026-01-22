@@ -51,4 +51,8 @@ lerna-debug.log*
 
 # Local artifacts
 src.zip
-docs/
+
+# Git management files
+.github/
+.husky/
+.trae/

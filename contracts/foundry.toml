@@ -1,0 +1,8 @@
+[profile.default]
+# Keep all compile targets under src/ to avoid pulling in lib/ sources.
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.20"

@@ -52,6 +52,9 @@ lerna-debug.log*
 # Local artifacts
 src.zip
 
+# Turbo
+.turbo/
+
 # Git management files
 .github/
 .husky/

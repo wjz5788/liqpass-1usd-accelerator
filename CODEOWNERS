@@ -1,0 +1,31 @@
+# Code Owners for LiqPass
+
+# Global owners
+*       @liqpass/team
+
+# Frontend
+apps/liqpass-frontend/        @liqpass/frontend-team
+*.tsx                         @liqpass/frontend-team
+*.ts                          @liqpass/frontend-team
+*.css                         @liqpass/frontend-team
+vite.config.ts                @liqpass/frontend-team
+tailwind.config.js            @liqpass/frontend-team
+
+# Backend
+apps/liqpass-backend/         @liqpass/backend-team
+
+# Smart Contracts
+contracts/                    @liqpass/contracts-team
+*.sol                         @liqpass/contracts-team
+
+# Documentation
+docs/                         @liqpass/docs-team
+README.md                     @liqpass/docs-team
+CONTRIBUTING.md               @liqpass/docs-team
+SECURITY.md                   @liqpass/docs-team
+CODE_OF_CONDUCT.md            @liqpass/docs-team
+
+# DevOps
+.github/                      @liqpass/devops-team
+Dockerfile                    @liqpass/devops-team
+docker-compose.yml            @liqpass/devops-team

@@ -100,3 +100,109 @@ export async function markOrderPaid(input: {
   if (rows.length === 0) throw new Error("ORDER_PAY_UPDATE_FAILED");
   return { ok: true, status: rows[0].status };
 }
+
+/**
+ * Bind OKX order metadata (ordId + instId) to a purchase order
+ * Security: Only allows binding when paid_at IS NULL (prevents post-payment tampering)
+ */
+export async function bindOkxMeta(
+  purchaseOrderId: string,
+  okxMeta: { ordId: string; instId: string }
+): Promise<{ ok: boolean }> {
+  // Check if order exists and is not yet paid
+  const { rows: cur } = await pool.query(
+    `SELECT id, paid_at, okx_meta_json FROM purchase_orders WHERE id = $1`,
+    [purchaseOrderId]
+  );
+  
+  if (cur.length === 0) throw new Error("ORDER_NOT_FOUND");
+  
+  // Security: prevent binding after payment
+  if (cur[0].paid_at) {
+    throw new Error("ALREADY_PAID_CANNOT_BIND");
+  }
+
+  // Update okx_meta_json
+  await pool.query(
+    `UPDATE purchase_orders 
+     SET okx_meta_json = $2 
+     WHERE id = $1`,
+    [purchaseOrderId, JSON.stringify(okxMeta)]
+  );
+
+  return { ok: true };
+}
+
+/**
+ * Mark a purchase order as paid (internal/semi-automated use)
+ * Idempotent: if already paid, returns success
+ */
+export async function markPurchaseOrderPaid(
+  purchaseOrderId: string,
+  paidAt?: Date
+): Promise<{ ok: boolean; paidAt: Date }> {
+  const paidAtValue = paidAt ?? new Date();
+
+  // Check current state
+  const { rows: cur } = await pool.query(
+    `SELECT id, paid_at FROM purchase_orders WHERE id = $1`,
+    [purchaseOrderId]
+  );
+
+  if (cur.length === 0) throw new Error("ORDER_NOT_FOUND");
+
+  // Idempotent: if already paid, return existing paid_at
+  if (cur[0].paid_at) {
+    return { ok: true, paidAt: cur[0].paid_at };
+  }
+
+  // Update paid_at
+  const { rows } = await pool.query(
+    `UPDATE purchase_orders 
+     SET paid_at = $2 
+     WHERE id = $1 
+     RETURNING paid_at`,
+    [purchaseOrderId, paidAtValue]
+  );
+
+  return { ok: true, paidAt: rows[0].paid_at };
+}
+
+/**
+ * Extended query for purchase order with all fields needed for frontend display
+ */
+export async function getPurchaseOrderByIdExtended(id: string) {
+  const res = await pool.query(
+    `SELECT
+       id,
+       purchase_order_id,
+       paid_at,
+       coverage_start_at,
+       coverage_end_at,
+       okx_meta_json,
+       policy_params_json,
+       premium_usd,
+       status,
+       created_at
+     FROM purchase_orders
+     WHERE id = $1
+     LIMIT 1`,
+    [id]
+  );
+
+  if (res.rows.length === 0) return null;
+
+  const row = res.rows[0];
+  return {
+    id: row.id,
+    purchaseOrderId: row.purchase_order_id,
+    paidAt: row.paid_at,
+    coverageStartAt: row.coverage_start_at,
+    coverageEndAt: row.coverage_end_at,
+    okxMeta: row.okx_meta_json,
+    policyParams: row.policy_params_json,
+    premiumUsd: row.premium_usd,
+    status: row.status,
+    createdAt: row.created_at
+  };
+}

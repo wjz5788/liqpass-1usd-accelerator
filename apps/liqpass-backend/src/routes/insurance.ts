@@ -21,6 +21,7 @@ interface BindingResult {
 }
 
 interface PurchaseOrder {
+  purchaseOrderDbId: string
   purchaseOrderId: string
   premiumAmount: string
   coverageStartAt: string
@@ -73,7 +74,7 @@ async function createPurchaseOrder(input: {
   // 假设sku是LIQPASS_8H，实际应从binding中获取
   const sku = "LIQPASS_8H"; // TODO: 从binding中获取实际的sku
   const durationSec = skuToDurationMap[sku] || 8 * 3600;
-  
+
   const result = await createPurchaseOrderFromRepo({
     userId,
     bindId: input.bindId,
@@ -82,8 +83,9 @@ async function createPurchaseOrder(input: {
     coverageDelaySec: input.coverageDelaySec,
     durationSec
   });
-  
+
   return {
+    purchaseOrderDbId: result.purchaseOrderDbId,
     purchaseOrderId: result.purchaseOrderId,
     premiumAmount: result.premiumAmount,
     coverageStartAt: result.coverageStartAt.toISOString(),
@@ -108,7 +110,7 @@ export async function registerInsuranceRoutes(app: FastifyInstance) {
         apiAccountId: string
         instId?: string
       }
-      
+
       if (!apiAccountId) {
         return reply.status(400).send('MISSING_apiAccountId')
       }
@@ -152,7 +154,7 @@ export async function registerInsuranceRoutes(app: FastifyInstance) {
         posSide: string
         sku: string
       }
-      
+
       if (!apiAccountId || !instId || !mgnMode || !posSide || !sku) {
         return reply.status(400).send('MISSING_FIELDS')
       }
@@ -169,7 +171,7 @@ export async function registerInsuranceRoutes(app: FastifyInstance) {
   app.post('/api/insurance/create-order', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { bindId } = request.body as { bindId: string }
-      
+
       if (!bindId) {
         return reply.status(400).send('MISSING_bindId')
       }
@@ -181,7 +183,13 @@ export async function registerInsuranceRoutes(app: FastifyInstance) {
       const coverageDelaySec = 600
 
       const out = await createPurchaseOrder({ bindId, premiumUsd, premiumAmount, coverageDelaySec })
-      return reply.send(out)
+      return reply.send({
+        id: out.purchaseOrderDbId,  // 新增：返回数据库 id 用于后续绑定
+        purchaseOrderId: out.purchaseOrderId,
+        premiumAmount: out.premiumAmount,
+        coverageStartAt: out.coverageStartAt,
+        coverageEndAt: out.coverageEndAt
+      })
     } catch (e: any) {
       return reply.status(400).send(e?.message ?? 'CREATE_ORDER_FAILED')
     }
@@ -195,11 +203,11 @@ export async function registerInsuranceRoutes(app: FastifyInstance) {
         payTxHash: string
         payer?: string
       }
-      
+
       if (!purchaseOrderId || !payTxHash) {
         return reply.status(400).send('MISSING_FIELDS')
       }
-      
+
       await markOrderPaid({ purchaseOrderId, payTxHash, payer })
       return reply.send({ ok: true })
     } catch (e: any) {

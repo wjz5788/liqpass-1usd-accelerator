@@ -1,3 +1,6 @@
 [submodule "contracts/lib/openzeppelin-contracts"]
 	path = contracts/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "vendor/liqpass"]
+	path = vendor/liqpass
+	url = https://github.com/wjz5788/LiqPass.git

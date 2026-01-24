@@ -28,6 +28,14 @@ const LoginRequiredPage = React.lazy(() => import('./pages/LoginRequiredPage'))
 const ForbiddenPage = React.lazy(() => import('./pages/ForbiddenPage'))
 
 const DesignSystemPage = React.lazy(() => import('../pages/DesignSystemPage'))
+const LMSRLandingPage = React.lazy(() => import('../pages/LmsrSimulator'))
+
+// Docs Pages
+const DocsIntroPage = React.lazy(() => import('../pages/docs/IntroPage'))
+const DocsQuickstartPage = React.lazy(() => import('../pages/docs/QuickstartPage'))
+const DocsMechanismPage = React.lazy(() => import('../pages/docs/MechanismPage'))
+const DocsRoadmapPage = React.lazy(() => import('../pages/docs/RoadmapPage'))
+const DocsAwardsPage = React.lazy(() => import('../pages/docs/AwardsPage'))
 
 const LoadingSpinner = () => (
   <div className='flex items-center justify-center min-h-[400px]'>
@@ -118,6 +126,37 @@ async function composeRoutes(): Promise<AppRouteObject[]> {
     {
       path: '/403',
       element: createElement(ForbiddenPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/lmsr',
+      element: createElement(LMSRLandingPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    // Docs Routes
+    {
+      path: '/docs/intro',
+      element: createElement(DocsIntroPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/quickstart',
+      element: createElement(DocsQuickstartPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/mechanism',
+      element: createElement(DocsMechanismPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/roadmap',
+      element: createElement(DocsRoadmapPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/awards',
+      element: createElement(DocsAwardsPage),
       meta: { moduleId: 'app', walletRequired: false },
     },
   ]

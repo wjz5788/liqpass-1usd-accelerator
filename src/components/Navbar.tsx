@@ -8,9 +8,17 @@ import {
   X,
   Rocket,
   LayoutDashboard,
+  BookOpen,
+  ExternalLink,
 } from 'lucide-react'
 
 import { WalletButton } from '../wallet/WalletButton'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from './DropdownMenu'
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
@@ -73,6 +81,64 @@ const Navbar: React.FC = () => {
                 </Link>
               )
             })}
+
+            {/* Docs Menu */}
+            <DropdownMenu
+              trigger={
+                <button
+                  className='flex items-center space-x-1 px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 text-stripe-500 hover:text-stripe-900 hover:bg-gray-50'
+                >
+                  <BookOpen className='h-4 w-4 text-stripe-400' />
+                  <span>文档</span>
+                </button>
+              }
+            >
+              <DropdownMenuContent align='end' className='w-56'>
+                <DropdownMenuItem asChild>
+                  <Link to='/docs/intro'>项目介绍</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/docs/quickstart'>快速开始</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/docs/mechanism'>机制与公式</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to='/docs/roadmap'>路线图</Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <Link to='/docs/awards' className='flex items-center gap-2'>
+                    <Trophy className='h-4 w-4' />
+                    获奖 / 资助
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <a
+                    href='https://github.com/wjz5788/liqpass-1usd-accelerator'
+                    target='_blank'
+                    rel='noreferrer'
+                    className='flex items-center gap-2'
+                  >
+                    GitHub <ExternalLink className='h-4 w-4' />
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Awards Badge */}
+            <Link
+              to='/docs/awards'
+              className='rounded-full border px-2 py-1 text-xs hover:bg-muted'
+              title='查看获奖/资助证明'
+            >
+              🏆 Grants
+            </Link>
 
             <div className='ml-2'>
               <WalletButton />

@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import MoveProbPanel from '../../../components/MoveProbPanel'
+import ProbCurveMini from '../../../components/ProbCurveMini'
+import type { QuoteResponse } from '../../../api/quote'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -83,6 +86,24 @@ const OneDollarProjectPageLikePump: React.FC = () => {
 
   // Use the new detail layout for all meme projects.
   const useDocDetailLayout = true
+
+  const [moveTargetPct, setMoveTargetPct] = useState<number>(50);
+  const [moveQuote, setMoveQuote] = useState<QuoteResponse | null>(null);
+
+  // 使用useCallback优化，避免每次渲染都重新创建函数
+  const handleTargetPctChange = useCallback((pct: number) => {
+    setMoveTargetPct(pct);
+  }, []);
+
+  const handleQuoteChange = useCallback((q: QuoteResponse) => {
+    setMoveQuote(q);
+  }, []);
+
+  // 让图表有默认值（没 quote 时也能画）
+  // 当前概率固定为63%（第1步要求）
+  const currentProb = 63;
+  const pNowWad = moveQuote?.pNow ?? String(Math.round((currentProb / 100) * 1e18));
+  const pAfterWad = moveQuote?.pAfter ?? String(Math.round((moveTargetPct / 100) * 1e18));
 
   const docMarkets: EventMarket[] = [
     {
@@ -489,52 +510,12 @@ const OneDollarProjectPageLikePump: React.FC = () => {
 
                     {activeTab === 'chart' && (
                       <div className='p-4 h-[340px] bg-white'>
-                        <div className='flex justify-between items-center mb-4'>
-                          <h3 className='font-bold text-stripe-900'>价格曲线</h3>
-                          <span className='text-sm font-medium text-stripe-500'>b={effectiveB.toFixed(1)}</span>
-                        </div>
-                        <div className='w-full h-[280px] relative'>
-                          {/* 价格曲线图表 */}
-                          <svg viewBox='0 0 800 240' className='w-full h-full'>
-                            {/* X轴 */}
-                            <line x1='60' y1='220' x2='740' y2='220' stroke='#E5E7EB' strokeWidth='1' />
-                            {/* Y轴 */}
-                            <line x1='60' y1='20' x2='60' y2='220' stroke='#E5E7EB' strokeWidth='1' />
-                            
-                            {/* Y轴刻度 */}
-                            {[0, 15, 30, 45, 60].map((value, index) => (
-                              <g key={index}>
-                                <line x1='58' y1={220 - (value / 60) * 200} x2='60' y2={220 - (value / 60) * 200} stroke='#E5E7EB' strokeWidth='1' />
-                                <text x='50' y={224 - (value / 60) * 200} textAnchor='end' className='text-xs text-stripe-500'>{value}</text>
-                              </g>
-                            ))}
-                            
-                            {/* X轴刻度 */}
-                            {[3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 91, 99].map((value, index) => (
-                              <g key={index}>
-                                <line x1={60 + (value / 100) * 680} y1='220' x2={60 + (value / 100) * 680} y2='222' stroke='#E5E7EB' strokeWidth='1' />
-                                <text x={60 + (value / 100) * 680} y='236' textAnchor='middle' className='text-xs text-stripe-500'>{value}</text>
-                              </g>
-                            ))}
-                            
-                            {/* 价格曲线 */}
-                            <path 
-                              d={`M 60,${220 - (45 / 60) * 200} Q 300,${220 - (15 / 60) * 200} 500,${220 - (15 / 60) * 200} T 740,${220 - (45 / 60) * 200}`} 
-                              fill='none' 
-                              stroke='#6366F1' 
-                              strokeWidth='2' 
-                            />
-                            
-                            {/* 当前点 */}
-                            <circle cx='500' cy={220 - (15 / 60) * 200} r='4' fill='#6366F1' />
-                          </svg>
-                          
-                          {/* 底部标签 */}
-                          <div className='flex justify-between items-center mt-2'>
-                            <span className='text-sm font-medium text-stripe-500'>当前</span>
-                            <span className='text-sm font-bold text-stripe-900'>50.00%</span>
-                          </div>
-                        </div>
+                        <ProbCurveMini
+                          pNowWad={pNowWad}
+                          pAfterWad={pAfterWad}
+                          targetPct={moveTargetPct}
+                          bLabel={`b=${effectiveB.toFixed(1)}`}
+                        />
                       </div>
                     )}
                   </div>
@@ -712,104 +693,21 @@ const OneDollarProjectPageLikePump: React.FC = () => {
             <div className='lg:col-span-1'>
               <div className='sticky top-24 flex flex-col gap-4'>
                 <div className='card overflow-hidden'>
-                  <div className='p-4 border-b border-gray-100 bg-white'>
-                    <div className='text-sm font-bold text-stripe-900'>
-                      Milestone Trade
-                    </div>
-                    <div className='text-xs text-stripe-400 mt-0.5'>
-                      {
-                        docMarkets.find(m => m.key === selectedMilestoneKey)
-                          ?.title
-                      }
-                    </div>
-                  </div>
+                  <MoveProbPanel
+                    marketId={('0x' + '22'.repeat(32)) as `0x${string}`}
+                    trader={('0x' + '33'.repeat(20)) as `0x${string}`}
 
-                  <div className='grid grid-cols-2 gap-3 p-4 pb-0'>
-                    {(() => {
-                      const m =
-                        docMarkets.find(x => x.key === selectedMilestoneKey) ??
-                        docMarkets[0]
-                      const prob = Math.max(0, Math.min(1, m.pYes ?? 0)) * 100
-                      const yesCents = prob
-                      const noCents = 100 - prob
+                    // 受控联动
+                    targetPct={moveTargetPct}
+                    onTargetPctChange={handleTargetPctChange}
+                    onQuoteChange={handleQuoteChange}
 
-                      const yesActive = milestoneTradePick === 'yes'
-                      const noActive = milestoneTradePick === 'no'
-
-                      return (
-                        <>
-                          <button
-                            type='button'
-                            className={`relative flex flex-col items-start p-3 rounded-xl border-2 transition-all duration-200 cursor-pointer ${yesActive ? 'border-green-500 bg-green-50/30 ring-1 ring-green-500/20' : 'border-transparent bg-gray-50 hover:bg-gray-100 hover:border-gray-200'}`}
-                            onClick={() => setMilestoneTradePick('yes')}
-                          >
-                            <div
-                              className={`text-xs font-bold mb-1 uppercase tracking-wide ${yesActive ? 'text-green-700' : 'text-stripe-500'}`}
-                            >
-                              YES
-                            </div>
-                            <div className='font-mono text-lg font-bold text-stripe-900'>
-                              {yesCents.toFixed(1)}¢
-                            </div>
-                          </button>
-
-                          <button
-                            type='button'
-                            className={`relative flex flex-col items-start p-3 rounded-xl border-2 transition-all duration-200 cursor-pointer ${noActive ? 'border-red-500 bg-red-50/30 ring-1 ring-red-500/20' : 'border-transparent bg-gray-50 hover:bg-gray-100 hover:border-gray-200'}`}
-                            onClick={() => setMilestoneTradePick('no')}
-                          >
-                            <div
-                              className={`text-xs font-bold mb-1 uppercase tracking-wide ${noActive ? 'text-red-700' : 'text-stripe-500'}`}
-                            >
-                              NO
-                            </div>
-                            <div className='font-mono text-lg font-bold text-stripe-900'>
-                              {noCents.toFixed(1)}¢
-                            </div>
-                          </button>
-                        </>
-                      )
-                    })()}
-                  </div>
-
-                  <div className='flex border-b border-gray-100 mt-4'>
-                    <button
-                      onClick={() => setMilestoneTradeMode('buy')}
-                      className={`flex-1 py-3 text-sm font-bold transition-colors ${milestoneTradeMode === 'buy' ? 'bg-green-50 text-green-600 border-b-2 border-green-500' : 'text-stripe-400 hover:text-stripe-600'}`}
-                    >
-                      Buy
-                    </button>
-                    <button
-                      onClick={() => setMilestoneTradeMode('sell')}
-                      className={`flex-1 py-3 text-sm font-bold transition-colors ${milestoneTradeMode === 'sell' ? 'bg-red-50 text-red-600 border-b-2 border-red-500' : 'text-stripe-400 hover:text-stripe-600'}`}
-                    >
-                      Sell
-                    </button>
-                  </div>
-
-                  <div className='p-4 space-y-4'>
-                    <div className='relative'>
-                      <input
-                        type='number'
-                        value={milestoneTradeAmountUsd}
-                        onChange={e =>
-                          setMilestoneTradeAmountUsd(e.target.value)
-                        }
-                        placeholder='0'
-                        className='w-full bg-white border border-gray-200 rounded-lg py-3 px-4 text-right text-lg font-mono focus:border-gray-300 outline-none transition-colors text-stripe-900'
-                      />
-                      <span className='absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stripe-500'>
-                        USD
-                      </span>
-                    </div>
-
-                    <button
-                      className={`w-full py-3.5 rounded-xl font-bold text-white shadow-md transition-all active:scale-[0.98] ${milestoneTradePick === 'yes' ? 'bg-green-500 hover:bg-green-600 shadow-green-500/20' : 'bg-red-500 hover:bg-red-600 shadow-red-500/20'}`}
-                    >
-                      {milestoneTradeMode === 'buy' ? 'Buy' : 'Sell'}{' '}
-                      {milestoneTradePick.toUpperCase()}
-                    </button>
-                  </div>
+                    defaultTargetPct={50}
+                    onSubmitQuote={(resp) => {
+                      console.log("quote ready for chain tx:", resp);
+                      // 你之后在这里接：合约 tx + signature
+                    }}
+                  />
                 </div>
 
                 <UserEarningsCard earnings={earnings} />

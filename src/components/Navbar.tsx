@@ -93,41 +93,118 @@ const Navbar: React.FC = () => {
                 </button>
               }
             >
-              <DropdownMenuContent align='end' className='w-56'>
-                <DropdownMenuItem asChild>
-                  <Link to='/docs/intro'>项目介绍</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to='/docs/quickstart'>快速开始</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to='/docs/mechanism'>机制与公式</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to='/docs/roadmap'>路线图</Link>
-                </DropdownMenuItem>
+              <DropdownMenuContent align='end' className='w-[400px] rounded-2xl border bg-white p-3 shadow-lg'>
+                {/* Docs Section */}
+                <div className='space-y-2 mb-3'>
+                  <div className='px-2 text-xs font-semibold text-stripe-500'>DOCS</div>
+                  <div className='grid gap-1'>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to='/docs/quickstart' 
+                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
+                      >
+                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
+                          <Rocket className='h-4 w-4 text-stripe-500' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
+                            <span className='truncate'>快速开始</span>
+                          </div>
+                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
+                            3 分钟跑通 Demo 与核心流程
+                          </div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to='/docs/mechanism' 
+                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
+                      >
+                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
+                          <TrendingUp className='h-4 w-4 text-stripe-500' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
+                            <span className='truncate'>机制与公式</span>
+                          </div>
+                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
+                            LMSR 定价、参数化保费、理赔判定
+                          </div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to='/docs/roadmap' 
+                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
+                      >
+                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
+                          <LayoutDashboard className='h-4 w-4 text-stripe-500' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
+                            <span className='truncate'>路线图</span>
+                          </div>
+                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
+                            V1 Demo → V2 可用 → V3 增长
+                          </div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                  </div>
+                </div>
 
-                <DropdownMenuSeparator />
+                {/* Separator */}
+                <div className='my-3 h-px bg-gray-100'></div>
 
-                <DropdownMenuItem asChild>
-                  <Link to='/docs/awards' className='flex items-center gap-2'>
-                    <Trophy className='h-4 w-4' />
-                    获奖 / 资助
-                  </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem asChild>
-                  <a
-                    href='https://github.com/wjz5788/liqpass-1usd-accelerator'
-                    target='_blank'
-                    rel='noreferrer'
-                    className='flex items-center gap-2'
-                  >
-                    GitHub <ExternalLink className='h-4 w-4' />
-                  </a>
-                </DropdownMenuItem>
+                {/* Resources Section */}
+                <div className='space-y-2'>
+                  <div className='px-2 text-xs font-semibold text-stripe-500'>RESOURCES</div>
+                  <div className='grid gap-1'>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to='/docs/awards' 
+                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
+                      >
+                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
+                          <Trophy className='h-4 w-4 text-stripe-500' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
+                            <span className='truncate'>获奖 / 资助</span>
+                          </div>
+                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
+                            OP Season 8 等资助进度与材料
+                          </div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href='https://github.com/wjz5788/liqpass-1usd-accelerator'
+                        target='_blank'
+                        rel='noreferrer'
+                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
+                      >
+                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
+                          <TrendingUp className='h-4 w-4 text-stripe-500' />
+                        </div>
+                        <div className='min-w-0 flex-1'>
+                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
+                            <span className='truncate'>GitHub</span>
+                            <span className='text-stripe-500'>
+                              <ExternalLink className='h-3.5 w-3.5' />
+                            </span>
+                          </div>
+                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
+                            源码仓库与部署说明
+                          </div>
+                        </div>
+                      </a>
+                    </DropdownMenuItem>
+                  </div>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 

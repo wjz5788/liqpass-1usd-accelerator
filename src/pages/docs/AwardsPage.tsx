@@ -6,16 +6,10 @@ const AwardsPage: React.FC = () => {
       name: 'OP Stack Season 8',
       time: '2025-12',
       result: '入选',
-      link: 'https://optimism.io/announcements/season-8-grantees',
+      link: 'https://gov.optimism.io/t/cycle-46-and-season-8-final-grants-report/10503',
       description: 'Optimism 生态资助计划第8季入选项目'
     },
-    {
-      name: '1USD Accelerator',
-      time: '2026-01',
-      result: '参与',
-      link: 'https://github.com/wjz5788/liqpass-1usd-accelerator',
-      description: '1美元加速器项目'
-    }
+   
   ]
 
   return (

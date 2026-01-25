@@ -45,6 +45,7 @@ export default function LMSRLandingPage() {
   const [p0, setP0] = useState(0.5);
   const [amount, setAmount] = useState(5);
   const [simOpen, setSimOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
   // Market state (qY,qN) is derived from p0 initially, but after trades it becomes independent.
   const [qY, setQY] = useState(() => quantitiesForProb(20, 0.5).qY);
@@ -120,6 +121,12 @@ export default function LMSRLandingPage() {
                 <span className="text-stripe-700"> 它永远会给出报价。</span>
               </p>
 
+              {copySuccess && (
+                <div className="mt-3 rounded-xl bg-green-500/15 px-4 py-2 text-sm text-green-700">
+                  {copySuccess}
+                </div>
+              )}
+
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   className="h-11 rounded-xl bg-accent-500 px-4 text-sm font-semibold text-white shadow-lg shadow-accent-500/20 hover:bg-accent-400"
@@ -128,16 +135,38 @@ export default function LMSRLandingPage() {
                   开始模拟
                 </button>
                 <button
-                  className="h-11 rounded-xl border border-stripe-200 bg-white/5 px-4 text-sm font-semibold text-stripe-700 hover:bg-white/10"
-                  onClick={() => {
-                    const params = new URLSearchParams({
-                      b: String(b),
-                      p0: String(p0),
-                      qY: String(qY),
-                      qN: String(qN),
-                      amt: String(amount),
-                    });
-                    navigator.clipboard?.writeText(`${location.origin}${location.pathname}?${params.toString()}`);
+                  className="h-11 rounded-xl border border-stripe-200 bg-white/5 px-4 text-sm font-semibold text-stripe-700 hover:bg-white/10 cursor-pointer"
+                  onClick={async () => {
+                    try {
+                      const params = new URLSearchParams({
+                        b: String(b),
+                        p0: String(p0),
+                        qY: String(qY),
+                        qN: String(qN),
+                        amt: String(amount),
+                      });
+                      const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                      await navigator.clipboard.writeText(url);
+                      setCopySuccess('链接已复制！');
+                      setTimeout(() => setCopySuccess(null), 2000);
+                    } catch (error) {
+                      // 降级方案：创建临时textarea元素
+                      const textarea = document.createElement('textarea');
+                      const params = new URLSearchParams({
+                        b: String(b),
+                        p0: String(p0),
+                        qY: String(qY),
+                        qN: String(qN),
+                        amt: String(amount),
+                      });
+                      textarea.value = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                      document.body.appendChild(textarea);
+                      textarea.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(textarea);
+                      setCopySuccess('链接已复制！');
+                      setTimeout(() => setCopySuccess(null), 2000);
+                    }
                   }}
                   title="复制带参数的分享链接"
                 >
@@ -146,11 +175,24 @@ export default function LMSRLandingPage() {
                   </span>
                 </button>
                 <button
-                  className="h-11 rounded-xl border border-stripe-200 bg-white/5 px-4 text-sm font-semibold text-stripe-700 hover:bg-white/10"
-                  onClick={() => {
-                    navigator.clipboard?.writeText(
-                      `我把价格推到 ${pct(yesPrice)}（b=${b}，下单=${amount}）。来试试：${location.origin}${location.pathname}`
-                    );
+                  className="h-11 rounded-xl border border-stripe-200 bg-white/5 px-4 text-sm font-semibold text-stripe-700 hover:bg-white/10 cursor-pointer"
+                  onClick={async () => {
+                    try {
+                      const text = `我把价格推到 ${pct(yesPrice)}（b=${b}，下单=${amount}）。来试试：${window.location.origin}${window.location.pathname}`;
+                      await navigator.clipboard.writeText(text);
+                      setCopySuccess('文案已复制！');
+                      setTimeout(() => setCopySuccess(null), 2000);
+                    } catch (error) {
+                      // 降级方案：创建临时textarea元素
+                      const textarea = document.createElement('textarea');
+                      textarea.value = `我把价格推到 ${pct(yesPrice)}（b=${b}，下单=${amount}）。来试试：${window.location.origin}${window.location.pathname}`;
+                      document.body.appendChild(textarea);
+                      textarea.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(textarea);
+                      setCopySuccess('文案已复制！');
+                      setTimeout(() => setCopySuccess(null), 2000);
+                    }
                   }}
                   title="复制分享文案"
                 >

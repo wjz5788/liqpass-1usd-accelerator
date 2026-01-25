@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 
 type QuoteResponse = {
   pNow: string;      // Current probability in wad format (1e18)

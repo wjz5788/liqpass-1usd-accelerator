@@ -43,7 +43,7 @@ const OneDollarProjectPageLikePump: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
   const [amount, setAmount] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'video' | 'website' | 'github'>(
+  const [activeTab, setActiveTab] = useState<'video' | 'website' | 'github' | 'chart'>(
     'video'
   )
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
@@ -70,6 +70,16 @@ const OneDollarProjectPageLikePump: React.FC = () => {
   const [phase, setPhase] = useState<Phase>(inferPhase(token))
   const [baseB, setBaseB] = useState<number>(60)
   const [autoB, setAutoB] = useState<boolean>(true)
+
+  const effectiveB = autoB
+    ? calcEffectiveB({
+        baseB,
+        phase,
+        volume24h: token.raisedUsd ?? token.marketCapValue ?? 0,
+        traders24h: token.participants ?? 0,
+        absChange: Math.abs(token.change ?? 0),
+      })
+    : baseB
 
   // Use the new detail layout for all meme projects.
   const useDocDetailLayout = true
@@ -377,21 +387,32 @@ const OneDollarProjectPageLikePump: React.FC = () => {
                       onClick={() => setActiveTab('video')}
                       className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${activeTab === 'video' ? 'bg-white text-stripe-900 border-gray-300 shadow-sm' : 'text-stripe-500 border-transparent hover:bg-gray-100'}`}
                     >
-                      <Play className='w-4 h-4' /> Video
+                      <Play className='w-4 h-4' />
+                      Video
                     </button>
                     <button
                       type='button'
                       onClick={() => setActiveTab('website')}
                       className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${activeTab === 'website' ? 'bg-white text-stripe-900 border-gray-300 shadow-sm' : 'text-stripe-500 border-transparent hover:bg-gray-100'}`}
                     >
-                      <Globe className='w-4 h-4' /> Website
+                      <Globe className='w-4 h-4' />
+                      Website
                     </button>
                     <button
                       type='button'
                       onClick={() => setActiveTab('github')}
                       className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${activeTab === 'github' ? 'bg-white text-stripe-900 border-gray-300 shadow-sm' : 'text-stripe-500 border-transparent hover:bg-gray-100'}`}
                     >
-                      <Github className='w-4 h-4' /> GitHub
+                      <Github className='w-4 h-4' />
+                      GitHub
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => setActiveTab('chart')}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors flex items-center gap-2 ${activeTab === 'chart' ? 'bg-white text-stripe-900 border-gray-300 shadow-sm' : 'text-stripe-500 border-transparent hover:bg-gray-100'}`}
+                    >
+                      <Star className='w-4 h-4' />
+                      Chart
                     </button>
                   </div>
 
@@ -463,6 +484,57 @@ const OneDollarProjectPageLikePump: React.FC = () => {
                         ) : (
                           <div className='text-stripe-400'>No repo</div>
                         )}
+                      </div>
+                    )}
+
+                    {activeTab === 'chart' && (
+                      <div className='p-4 h-[340px] bg-white'>
+                        <div className='flex justify-between items-center mb-4'>
+                          <h3 className='font-bold text-stripe-900'>价格曲线</h3>
+                          <span className='text-sm font-medium text-stripe-500'>b={effectiveB.toFixed(1)}</span>
+                        </div>
+                        <div className='w-full h-[280px] relative'>
+                          {/* 价格曲线图表 */}
+                          <svg viewBox='0 0 800 240' className='w-full h-full'>
+                            {/* X轴 */}
+                            <line x1='60' y1='220' x2='740' y2='220' stroke='#E5E7EB' strokeWidth='1' />
+                            {/* Y轴 */}
+                            <line x1='60' y1='20' x2='60' y2='220' stroke='#E5E7EB' strokeWidth='1' />
+                            
+                            {/* Y轴刻度 */}
+                            {[0, 15, 30, 45, 60].map((value, index) => (
+                              <g key={index}>
+                                <line x1='58' y1={220 - (value / 60) * 200} x2='60' y2={220 - (value / 60) * 200} stroke='#E5E7EB' strokeWidth='1' />
+                                <text x='50' y={224 - (value / 60) * 200} textAnchor='end' className='text-xs text-stripe-500'>{value}</text>
+                              </g>
+                            ))}
+                            
+                            {/* X轴刻度 */}
+                            {[3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 91, 99].map((value, index) => (
+                              <g key={index}>
+                                <line x1={60 + (value / 100) * 680} y1='220' x2={60 + (value / 100) * 680} y2='222' stroke='#E5E7EB' strokeWidth='1' />
+                                <text x={60 + (value / 100) * 680} y='236' textAnchor='middle' className='text-xs text-stripe-500'>{value}</text>
+                              </g>
+                            ))}
+                            
+                            {/* 价格曲线 */}
+                            <path 
+                              d={`M 60,${220 - (45 / 60) * 200} Q 300,${220 - (15 / 60) * 200} 500,${220 - (15 / 60) * 200} T 740,${220 - (45 / 60) * 200}`} 
+                              fill='none' 
+                              stroke='#6366F1' 
+                              strokeWidth='2' 
+                            />
+                            
+                            {/* 当前点 */}
+                            <circle cx='500' cy={220 - (15 / 60) * 200} r='4' fill='#6366F1' />
+                          </svg>
+                          
+                          {/* 底部标签 */}
+                          <div className='flex justify-between items-center mt-2'>
+                            <span className='text-sm font-medium text-stripe-500'>当前</span>
+                            <span className='text-sm font-bold text-stripe-900'>50.00%</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -820,16 +892,6 @@ const OneDollarProjectPageLikePump: React.FC = () => {
     },
   ]
 
-  const effectiveB = autoB
-    ? calcEffectiveB({
-        baseB,
-        phase,
-        volume24h: token.raisedUsd ?? token.marketCapValue ?? 0,
-        traders24h: token.participants ?? 0,
-        absChange: Math.abs(token.change ?? 0),
-      })
-    : baseB
-
   const project = {
     name: token.name,
     ticker: token.ticker,
@@ -1026,6 +1088,13 @@ const OneDollarProjectPageLikePump: React.FC = () => {
                 <Github className='w-3.5 h-3.5' />
                 GitHub
               </button>
+              <button
+                onClick={() => setActiveTab('chart')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors ${activeTab === 'chart' ? 'bg-gray-100 text-stripe-900' : 'text-stripe-500 hover:text-stripe-900 hover:bg-gray-50'}`}
+              >
+                <Star className='w-3.5 h-3.5' />
+                Chart
+              </button>
             </div>
 
             <div className='flex-1 bg-gray-50 relative'>
@@ -1125,49 +1194,56 @@ const OneDollarProjectPageLikePump: React.FC = () => {
                         })}
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
 
-                    <div className='space-y-3'>
-                      <h4 className='text-sm font-medium text-stripe-500'>
-                        Recent Commits
-                      </h4>
-                      {[
-                        {
-                          msg: 'feat: implement bonding curve logic',
-                          time: '2h ago',
-                          hash: '8a9b2c',
-                        },
-                        {
-                          msg: 'fix: ui overflow on mobile',
-                          time: '5h ago',
-                          hash: '3d4e5f',
-                        },
-                        {
-                          msg: 'docs: update readme',
-                          time: '1d ago',
-                          hash: '1a2b3c',
-                        },
-                        {
-                          msg: 'chore: update dependencies',
-                          time: '2d ago',
-                          hash: '9f8e7d',
-                        },
-                      ].map((commit, i) => (
-                        <div
-                          key={i}
-                          className='flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors'
-                        >
-                          <div className='flex items-center gap-3'>
-                            <div className='w-2 h-2 rounded-full bg-blue-500' />
-                            <span className='text-sm font-mono text-stripe-700'>
-                              {commit.msg}
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-3 text-xs text-stripe-400'>
-                            <span className='font-mono'>{commit.hash}</span>
-                            <span>{commit.time}</span>
-                          </div>
-                        </div>
+              {activeTab === 'chart' && (
+                <div className='w-full h-full p-4 bg-white'>
+                  <div className='flex justify-between items-center mb-4 px-2'>
+                    <h3 className='font-bold text-stripe-900'>价格曲线</h3>
+                    <span className='text-sm font-medium text-stripe-500'>b={effectiveB.toFixed(1)}</span>
+                  </div>
+                  <div className='w-full h-[400px] relative px-2'>
+                    {/* 价格曲线图表 */}
+                    <svg viewBox='0 0 800 300' className='w-full h-full'>
+                      {/* X轴 */}
+                      <line x1='60' y1='280' x2='740' y2='280' stroke='#E5E7EB' strokeWidth='1' />
+                      {/* Y轴 */}
+                      <line x1='60' y1='20' x2='60' y2='280' stroke='#E5E7EB' strokeWidth='1' />
+                       
+                      {/* Y轴刻度 */}
+                      {[0, 15, 30, 45, 60].map((value, index) => (
+                        <g key={index}>
+                          <line x1='58' y1={280 - (value / 60) * 260} x2='60' y2={280 - (value / 60) * 260} stroke='#E5E7EB' strokeWidth='1' />
+                          <text x='50' y={284 - (value / 60) * 260} textAnchor='end' className='text-xs text-stripe-500'>{value}</text>
+                        </g>
                       ))}
+                      
+                      {/* X轴刻度 */}
+                      {[3, 11, 19, 27, 35, 43, 51, 59, 67, 75, 83, 91, 99].map((value, index) => (
+                        <g key={index}>
+                          <line x1={60 + (value / 100) * 680} y1='280' x2={60 + (value / 100) * 680} y2='282' stroke='#E5E7EB' strokeWidth='1' />
+                          <text x={60 + (value / 100) * 680} y='296' textAnchor='middle' className='text-xs text-stripe-500'>{value}</text>
+                        </g>
+                      ))}
+                      
+                      {/* 价格曲线 */}
+                      <path 
+                        d={`M 60,${280 - (45 / 60) * 260} Q 300,${280 - (15 / 60) * 260} 500,${280 - (15 / 60) * 260} T 740,${280 - (45 / 60) * 260}`} 
+                        fill='none' 
+                        stroke='#6366F1' 
+                        strokeWidth='2' 
+                      />
+                      
+                      {/* 当前点 */}
+                      <circle cx='500' cy={280 - (15 / 60) * 260} r='4' fill='#6366F1' />
+                    </svg>
+                    
+                    {/* 底部标签 */}
+                    <div className='flex justify-between items-center mt-2 px-2'>
+                      <span className='text-sm font-medium text-stripe-500'>当前</span>
+                      <span className='text-sm font-bold text-stripe-900'>50.00%</span>
                     </div>
                   </div>
                 </div>

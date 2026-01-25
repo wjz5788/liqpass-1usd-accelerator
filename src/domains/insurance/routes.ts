@@ -9,4 +9,9 @@ export const insuranceRoutes: AppRouteObject[] = [
     element: createElement(InsurancePage),
     meta: { moduleId: 'insurance', walletRequired: false },
   },
+  {
+    path: '/liqpass',
+    element: createElement(InsurancePage),
+    meta: { moduleId: 'insurance', walletRequired: false },
+  },
 ]

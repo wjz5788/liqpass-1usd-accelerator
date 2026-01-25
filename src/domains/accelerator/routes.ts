@@ -93,6 +93,11 @@ export const acceleratorRoutes: AppRouteObject[] = [
     meta: { moduleId: 'accelerator', walletRequired: false },
   },
   {
+    path: '/1usd',
+    element: createElement(MemeBoardPage),
+    meta: { moduleId: 'accelerator', walletRequired: false },
+  },
+  {
     path: '/accelerator/lottery-board',
     element: createElement(LotteryProjectBoardPage),
     meta: { moduleId: 'accelerator', walletRequired: false },

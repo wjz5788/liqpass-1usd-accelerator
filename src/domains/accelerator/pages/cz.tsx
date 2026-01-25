@@ -617,7 +617,7 @@ const LotteryProjectBoardPage: React.FC = () => {
                 </div>
               </div>
 
-              <button className='flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-stripe-900 text-white text-xs font-bold px-4 py-2.5 hover:bg-stripe-800 transition-colors shadow-lg shadow-stripe-sm'>
+              <button onClick={() => navigate('/accelerator/submit')} className='flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-stripe-900 text-white text-xs font-bold px-4 py-2.5 hover:bg-stripe-800 transition-colors shadow-lg shadow-stripe-sm'>
                 <Plus className='w-4 h-4' />
                 <span>创建项目</span>
               </button>

@@ -1,41 +1,28 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  TrendingUp,
-  Trophy,
   Shield,
   Menu,
   X,
   Rocket,
-  LayoutDashboard,
+  TrendingUp,
+  FlaskConical,
+  DollarSign,
   BookOpen,
-  ExternalLink,
 } from 'lucide-react'
 
 import { WalletButton } from '../wallet/WalletButton'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from './DropdownMenu'
+import DocsDropdown from './DocsDropdown'
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const location = useLocation()
 
   const navItems = [
-    { path: '/', label: '首页', icon: TrendingUp },
-    { path: '/accelerator/meme-board', label: '$1', icon: Rocket },
-    { path: '/arena', label: '比赛区', icon: Trophy },
-    { path: '/strategies', label: '策略区', icon: TrendingUp },
-    { path: '/insurance', label: '保险区', icon: Shield },
-    { path: '/accelerator/heat-rank', label: '热度榜', icon: Trophy },
-    {
-      path: '/accelerator/dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
-    },
+    { path: '/accelerator/meme-board', label: '1美元', icon: DollarSign },
+    { path: '/accelerator', label: '众筹', icon: Rocket },
+    { path: '/liqpass', label: '保险购买', icon: Shield },
+    { path: '/lmsr', label: '1美元模拟', icon: FlaskConical },
   ]
 
   const isActive = (path: string) => {
@@ -82,140 +69,8 @@ const Navbar: React.FC = () => {
               )
             })}
 
-            {/* Docs Menu */}
-            <DropdownMenu
-              trigger={
-                <button
-                  className='flex items-center space-x-1 px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 text-stripe-500 hover:text-stripe-900 hover:bg-gray-50'
-                >
-                  <BookOpen className='h-4 w-4 text-stripe-400' />
-                  <span>文档</span>
-                </button>
-              }
-            >
-              <DropdownMenuContent align='end' className='w-[400px] rounded-2xl border bg-white p-3 shadow-lg'>
-                {/* Docs Section */}
-                <div className='space-y-2 mb-3'>
-                  <div className='px-2 text-xs font-semibold text-stripe-500'>DOCS</div>
-                  <div className='grid gap-1'>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        to='/docs/quickstart' 
-                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
-                      >
-                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
-                          <Rocket className='h-4 w-4 text-stripe-500' />
-                        </div>
-                        <div className='min-w-0 flex-1'>
-                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
-                            <span className='truncate'>快速开始</span>
-                          </div>
-                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
-                            3 分钟跑通 Demo 与核心流程
-                          </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        to='/docs/mechanism' 
-                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
-                      >
-                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
-                          <TrendingUp className='h-4 w-4 text-stripe-500' />
-                        </div>
-                        <div className='min-w-0 flex-1'>
-                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
-                            <span className='truncate'>机制与公式</span>
-                          </div>
-                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
-                            LMSR 定价、参数化保费、理赔判定
-                          </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        to='/docs/roadmap' 
-                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
-                      >
-                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
-                          <LayoutDashboard className='h-4 w-4 text-stripe-500' />
-                        </div>
-                        <div className='min-w-0 flex-1'>
-                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
-                            <span className='truncate'>路线图</span>
-                          </div>
-                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
-                            V1 Demo → V2 可用 → V3 增长
-                          </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  </div>
-                </div>
-
-                {/* Separator */}
-                <div className='my-3 h-px bg-gray-100'></div>
-
-                {/* Resources Section */}
-                <div className='space-y-2'>
-                  <div className='px-2 text-xs font-semibold text-stripe-500'>RESOURCES</div>
-                  <div className='grid gap-1'>
-                    <DropdownMenuItem asChild>
-                      <Link 
-                        to='/docs/awards' 
-                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
-                      >
-                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
-                          <Trophy className='h-4 w-4 text-stripe-500' />
-                        </div>
-                        <div className='min-w-0 flex-1'>
-                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
-                            <span className='truncate'>获奖 / 资助</span>
-                          </div>
-                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
-                            OP Season 8 等资助进度与材料
-                          </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <a
-                        href='https://github.com/wjz5788/liqpass-1usd-accelerator'
-                        target='_blank'
-                        rel='noreferrer'
-                        className='group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-gray-50/60'
-                      >
-                        <div className='mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50'>
-                          <TrendingUp className='h-4 w-4 text-stripe-500' />
-                        </div>
-                        <div className='min-w-0 flex-1'>
-                          <div className='flex items-center gap-2 text-sm font-medium leading-5 text-stripe-900'>
-                            <span className='truncate'>GitHub</span>
-                            <span className='text-stripe-500'>
-                              <ExternalLink className='h-3.5 w-3.5' />
-                            </span>
-                          </div>
-                          <div className='mt-0.5 line-clamp-1 text-xs text-stripe-500'>
-                            源码仓库与部署说明
-                          </div>
-                        </div>
-                      </a>
-                    </DropdownMenuItem>
-                  </div>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Awards Badge */}
-            <Link
-              to='/docs/awards'
-              className='rounded-full border px-2 py-1 text-xs hover:bg-muted'
-              title='查看获奖/资助证明'
-            >
-              🏆 Grants
-            </Link>
+            {/* 文档下拉菜单 */}
+            <DocsDropdown />
 
             <div className='ml-2'>
               <WalletButton />
@@ -262,6 +117,20 @@ const Navbar: React.FC = () => {
                   </Link>
                 )
               })}
+              
+              {/* 移动端文档链接 */}
+              <Link
+                to='/docs'
+                onClick={() => setIsMenuOpen(false)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+                  location.pathname.startsWith('/docs')
+                    ? 'text-accent-600 bg-accent-50'
+                    : 'text-stripe-600 hover:text-stripe-900 hover:bg-gray-50'
+                }`}
+              >
+                <BookOpen className='h-5 w-5' />
+                <span>文档</span>
+              </Link>
             </div>
           </div>
         )}

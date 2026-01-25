@@ -3,6 +3,7 @@ import {
   Outlet,
   createBrowserRouter,
   createMemoryRouter,
+  Navigate,
 } from 'react-router-dom'
 
 import type { AppRouteObject } from './routes/types'
@@ -16,26 +17,14 @@ import { useSyncWalletToStore } from '../wallet/useSyncWalletToStore'
 
 import { enabledModules } from './modules'
 
-const HomePage = React.lazy(() => import('../pages/HomePage'))
-const RewardHallPage = React.lazy(() => import('../pages/RewardHallPage'))
-const AcceleratorDashboardPage = React.lazy(
-  () => import('../pages/AcceleratorDashboardPage')
-)
-const ProjectResearchPage = React.lazy(
-  () => import('../domains/stocks/pages/ProjectResearchPage')
-)
+const ComingSoonPage = React.lazy(() => import('../pages/ComingSoonPage'))
+const LmsrSimulator = React.lazy(() => import('../pages/LmsrSimulator'))
+const IntroPage = React.lazy(() => import('../pages/docs/IntroPage'))
+const AwardsPage = React.lazy(() => import('../pages/docs/AwardsPage'))
+const MechanismPage = React.lazy(() => import('../pages/docs/MechanismPage'))
+const QuickstartPage = React.lazy(() => import('../pages/docs/QuickstartPage'))
+const RoadmapPage = React.lazy(() => import('../pages/docs/RoadmapPage'))
 const LoginRequiredPage = React.lazy(() => import('./pages/LoginRequiredPage'))
-const ForbiddenPage = React.lazy(() => import('./pages/ForbiddenPage'))
-
-const DesignSystemPage = React.lazy(() => import('../pages/DesignSystemPage'))
-const LMSRLandingPage = React.lazy(() => import('../pages/LmsrSimulator'))
-
-// Docs Pages
-const DocsIntroPage = React.lazy(() => import('../pages/docs/IntroPage'))
-const DocsQuickstartPage = React.lazy(() => import('../pages/docs/QuickstartPage'))
-const DocsMechanismPage = React.lazy(() => import('../pages/docs/MechanismPage'))
-const DocsRoadmapPage = React.lazy(() => import('../pages/docs/RoadmapPage'))
-const DocsAwardsPage = React.lazy(() => import('../pages/docs/AwardsPage'))
 
 const LoadingSpinner = () => (
   <div className='flex items-center justify-center min-h-[400px]'>
@@ -92,84 +81,79 @@ function applyRouteGuards(routes: AppRouteObject[]): AppRouteObject[] {
 }
 
 async function composeRoutes(): Promise<AppRouteObject[]> {
-  const crossDomainRoutes: AppRouteObject[] = [
-    {
-      path: '/',
-      element: createElement(HomePage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/reward-hall',
-      element: createElement(RewardHallPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/accelerator/dashboard',
-      element: createElement(AcceleratorDashboardPage),
-      meta: { moduleId: 'accelerator', walletRequired: true },
-    },
-    {
-      path: '/p/:id',
-      element: createElement(ProjectResearchPage),
-      meta: { moduleId: 'strategies', walletRequired: false },
-    },
-    {
-      path: '/design',
-      element: createElement(DesignSystemPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/login',
-      element: createElement(LoginRequiredPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/403',
-      element: createElement(ForbiddenPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/lmsr',
-      element: createElement(LMSRLandingPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    // Docs Routes
-    {
-      path: '/docs/intro',
-      element: createElement(DocsIntroPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/docs/quickstart',
-      element: createElement(DocsQuickstartPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/docs/mechanism',
-      element: createElement(DocsMechanismPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/docs/roadmap',
-      element: createElement(DocsRoadmapPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-    {
-      path: '/docs/awards',
-      element: createElement(DocsAwardsPage),
-      meta: { moduleId: 'app', walletRequired: false },
-    },
-  ]
-
+  // 只初始化保留的模块
   enabledModules.forEach(m => {
     if (typeof m.init === 'function') m.init()
   })
 
+  // 加载所有模块路由
   const moduleRoutes = (
     await Promise.all(enabledModules.map(m => m.routesLoader()))
   ).flat()
 
-  const children: AppRouteObject[] = [...crossDomainRoutes, ...moduleRoutes]
+  // 基础路由
+  const baseRoutes: AppRouteObject[] = [
+    {
+      path: '/lmsr',
+      element: createElement(LmsrSimulator),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs',
+      element: createElement(IntroPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/intro',
+      element: createElement(IntroPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/awards',
+      element: createElement(AwardsPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/mechanism',
+      element: createElement(MechanismPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/quickstart',
+      element: createElement(QuickstartPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/docs/roadmap',
+      element: createElement(RoadmapPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    {
+      path: '/coming-soon',
+      element: createElement(ComingSoonPage),
+      meta: { moduleId: 'app', walletRequired: false },
+    },
+    // 登录/连接钱包页面
+      {
+        path: '/login',
+        element: createElement(LoginRequiredPage),
+        meta: { moduleId: 'app', walletRequired: false },
+      },
+      // 默认路由指向 AcceleratorHomePage
+      {
+        path: '/',
+        element: <Navigate to="/accelerator" replace />,
+        meta: { moduleId: 'app', walletRequired: false },
+      },
+      // 通配符路由，匹配所有未定义的路由
+      {
+        path: '*',
+        element: <Navigate to="/coming-soon" replace />,
+        meta: { moduleId: 'app', walletRequired: false },
+      },
+  ]
+
+  const children: AppRouteObject[] = [...baseRoutes, ...moduleRoutes]
 
   return [
     {

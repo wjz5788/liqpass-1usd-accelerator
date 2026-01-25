@@ -225,7 +225,7 @@ const ProjectsPage: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate('/accelerator/submit-project')}
+              onClick={() => navigate('/accelerator/submit')}
               className='inline-flex items-center justify-center rounded-xl border border-gray-400 px-3 py-2 text-xs font-medium hover:bg-gray-100'
             >
               提交新项目

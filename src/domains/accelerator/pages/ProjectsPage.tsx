@@ -1,58 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-interface Project {
-  id: string
-  title: string
-  description: string
-  totalVolume: number
-  participants: number
-  status: 'active' | 'completed' | 'upcoming'
-  tag: string
-  image?: string
-}
-
-const mockProjects: Project[] = [
-  {
-    id: '1',
-    title: 'AI 驱动的链上数据分析工具',
-    description: '为 DeFi 协议提供实时数据分析和风险预警',
-    totalVolume: 12500,
-    participants: 3125,
-    status: 'active',
-    tag: 'AI/数据',
-  },
-  {
-    id: '2',
-    title: '去中心化社交协议',
-    description: '基于区块链的社交媒体平台，用户拥有数据所有权',
-    totalVolume: 8900,
-    participants: 2225,
-    status: 'active',
-    tag: 'SocialFi',
-  },
-  {
-    id: '3',
-    title: '跨链流动性聚合器',
-    description: '整合多条链的流动性，提供最优交易路径',
-    totalVolume: 15600,
-    participants: 3900,
-    status: 'completed',
-    tag: 'DeFi',
-  },
-  {
-    id: '4',
-    title: 'NFT 租赁协议',
-    description: '让 NFT 持有者可以通过租赁获得收益',
-    totalVolume: 6700,
-    participants: 1675,
-    status: 'upcoming',
-    tag: 'NFT',
-  },
-]
+import { useProjectsStore } from '../store/projectsStore'
 
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate()
+  const {
+    projects,
+    filteredProjects,
+    fetchProjects,
+    isLoading,
+    error
+  } = useProjectsStore()
+
+  // 组件挂载时获取项目数据
+  useEffect(() => {
+    fetchProjects()
+  }, [fetchProjects])
 
   const handleProjectClick = (projectId: string) => {
     navigate(`/accelerator/projects/${projectId}`)
@@ -73,6 +36,22 @@ const ProjectsPage: React.FC = () => {
       default:
         return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-xl text-gray-500'>加载中...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div className='text-xl text-red-500'>错误：{error}</div>
+      </div>
+    )
   }
 
   return (
@@ -117,7 +96,7 @@ const ProjectsPage: React.FC = () => {
               总项目数
             </p>
             <p className='text-lg font-semibold text-gray-900'>
-              {mockProjects.length}
+              {projects.length}
             </p>
           </div>
           <div className='rounded-xl bg-white p-4 border border-gray-200'>
@@ -125,7 +104,7 @@ const ProjectsPage: React.FC = () => {
               活跃项目
             </p>
             <p className='text-lg font-semibold text-gray-900'>
-              {mockProjects.filter(p => p.status === 'active').length}
+              {projects.length} {/* 暂时使用总项目数，后续根据实际状态过滤 */}
             </p>
           </div>
           <div className='rounded-xl bg-white p-4 border border-gray-200'>
@@ -133,10 +112,7 @@ const ProjectsPage: React.FC = () => {
               总筹资额
             </p>
             <p className='text-lg font-semibold text-gray-900'>
-              $
-              {mockProjects
-                .reduce((sum, p) => sum + p.totalVolume, 0)
-                .toLocaleString()}
+              ${projects.reduce((sum, p) => sum + (p.raisedUsd || 0), 0).toLocaleString()}
             </p>
           </div>
           <div className='rounded-xl bg-white p-4 border border-gray-200'>
@@ -144,16 +120,14 @@ const ProjectsPage: React.FC = () => {
               参与人数
             </p>
             <p className='text-lg font-semibold text-gray-900'>
-              {mockProjects
-                .reduce((sum, p) => sum + p.participants, 0)
-                .toLocaleString()}
+              {projects.reduce((sum, p) => sum + (p.participants || 0), 0).toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* Projects Grid */}
         <div className='grid gap-4 md:grid-cols-2'>
-          {mockProjects.map(project => (
+          {filteredProjects.map(project => (
             <div
               key={project.id}
               onClick={() => handleProjectClick(project.id)}
@@ -162,17 +136,26 @@ const ProjectsPage: React.FC = () => {
               <div>
                 <div className='flex items-center justify-between mb-3'>
                   <span
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(project.status)}`}
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusColor('active')}`}
                   >
-                    {project.status === 'active' && '进行中'}
-                    {project.status === 'completed' && '已完成'}
-                    {project.status === 'upcoming' && '即将开始'}
+                    进行中
                   </span>
-                  <span className='text-xs text-gray-500'>{project.tag}</span>
+                  <span className='text-xs text-gray-500'>{project.phase || '未分类'}</span>
                 </div>
 
+                {/* 添加项目图片 */}
+                {project.image && (
+                  <div className='mb-3'>
+                    <img 
+                      src={project.image} 
+                      alt={project.name} 
+                      className='w-full h-24 object-cover rounded-lg'
+                    />
+                  </div>
+                )}
+
                 <h3 className='text-sm font-semibold text-gray-900 mb-2'>
-                  {project.title}
+                  {project.name}
                 </h3>
                 <p className='text-xs text-gray-600 mb-3'>
                   {project.description}
@@ -182,13 +165,13 @@ const ProjectsPage: React.FC = () => {
                   <div>
                     <p className='text-gray-400'>本期筹集</p>
                     <p className='font-semibold'>
-                      ${project.totalVolume.toLocaleString()} / 目标 TBD
+                      ${(project.raisedUsd || 0).toLocaleString()} / 目标 TBD
                     </p>
                   </div>
                   <div>
                     <p className='text-gray-400'>支持人数</p>
                     <p className='font-semibold'>
-                      {project.participants.toLocaleString()} 人
+                      {(project.participants || 0).toLocaleString()} 人
                     </p>
                   </div>
                 </div>

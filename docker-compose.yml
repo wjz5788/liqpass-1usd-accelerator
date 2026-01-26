@@ -1,0 +1,50 @@
+services: 
+   db: 
+     image: postgres:16 
+     container_name: liqpass-db 
+     environment: 
+       POSTGRES_USER: liqpass 
+       POSTGRES_PASSWORD: liqpasspass 
+       POSTGRES_DB: liqpass 
+     ports: 
+       - "5432:5432" 
+     volumes: 
+       - dbdata:/var/lib/postgresql/data 
+     restart: unless-stopped 
+
+   backend: 
+     image: node:20-alpine 
+     container_name: liqpass-backend 
+     working_dir: /app 
+     volumes: 
+       - ./apps/liqpass-backend:/app 
+     environment: 
+       # 后端依赖 pg，这里给一个最通用的连接串 
+       DATABASE_URL: postgres://liqpass:liqpasspass@db:5432/liqpass 
+       PORT: 3001 
+       HOST: 0.0.0.0 
+     depends_on: 
+       - db 
+     ports: 
+       - "3001:3001" 
+     command: sh -c "npm ci && npm run dev" 
+     restart: unless-stopped 
+
+   web: 
+     image: node:20-alpine 
+     container_name: liqpass-web 
+     working_dir: /app 
+     volumes: 
+       - ./:/app 
+     environment: 
+       # 让前端打到你服务器的 3001 
+       VITE_API_BASE: "http://localhost:3001" 
+     depends_on: 
+       - backend 
+     ports: 
+       - "3000:3000" 
+     command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 3000" 
+     restart: unless-stopped 
+
+ volumes: 
+   dbdata:

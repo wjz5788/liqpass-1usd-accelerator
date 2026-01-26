@@ -367,8 +367,9 @@ const MemeCard: React.FC<{ token: MemeToken }> = ({ token }) => {
 }
 
 const LotteryProjectBoardPage: React.FC = () => {
+  const navigate = useNavigate()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [activeFilter, setActiveFilter] = useState('movers')
+  const [activeFilter, setActiveFilter] = useState<string>('heat')
 
   const filters = [
     { id: 'movers', label: '热门波动', icon: Zap, color: 'text-yellow-400' },

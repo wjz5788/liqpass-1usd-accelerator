@@ -57,15 +57,19 @@ class HttpService {
     const id = setTimeout(() => controller.abort(), timeout);
 
     try {
-      const response = await fetch(url, {
+      // 处理FormData，不需要JSON.stringify和Content-Type
+      const isFormData = body instanceof FormData;
+      const fetchOptions: RequestInit = {
         method,
-        headers: {
+        headers: isFormData ? headers : {
           'Content-Type': 'application/json',
           ...headers,
         },
-        body: body ? JSON.stringify(body) : undefined,
+        body: isFormData ? body : (body ? JSON.stringify(body) : undefined),
         signal: controller.signal,
-      });
+      };
+
+      const response = await fetch(url, fetchOptions);
 
       clearTimeout(id);
       return this.handleResponse<T>(response);

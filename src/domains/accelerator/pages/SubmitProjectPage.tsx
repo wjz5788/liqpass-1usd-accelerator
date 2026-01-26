@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, SyntheticEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { acceleratorAPI } from '../services/accelerator'
 
 export type StageOption = 'MVP 进行中' | '已上线运营'
 
@@ -140,6 +141,8 @@ export const SubmitProjectPage: React.FC = () => {
   const validate = (): boolean => {
     const newErrors: FormErrors = {}
 
+    console.log('表单验证开始，当前表单值:', formValues)
+
     if (!formValues.name.trim()) {
       newErrors.name = '项目名称为必填项'
     }
@@ -178,6 +181,7 @@ export const SubmitProjectPage: React.FC = () => {
       newErrors.longVideo = '请上传 Demo / 路演视频'
     }
 
+    console.log('验证结果 - 错误数量:', Object.keys(newErrors).length, '错误详情:', newErrors)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -189,36 +193,24 @@ export const SubmitProjectPage: React.FC = () => {
     setSubmitting(true)
 
     try {
-      // TODO: 调用后端 API
-      const submitData = new FormData()
+      // 准备提交数据
+      const projectData = {
+        name: formValues.name,
+        ticker: formValues.name.toUpperCase().replace(/\s+/g, ''), // 简单生成ticker
+        description: formValues.tagline,
+        website: formValues.website,
+        twitter: formValues.twitter,
+        github: formValues.github,
+        // 注意：当前API不支持文件上传，我们需要先处理文件上传
+        // 这里暂时使用mock数据，后续需要完善文件上传逻辑
+        image: 'https://via.placeholder.com/1000x1000',
+      }
 
-      // 添加基础字段
-      Object.keys(formValues).forEach(key => {
-        if (
-          key !== 'coverImage' &&
-          key !== 'shortVideo' &&
-          key !== 'longVideo'
-        ) {
-          const value =
-            formValues[key as keyof CreateProjectBasicInfoFormValues]
-          if (value !== null && value !== undefined) {
-            submitData.append(key, value.toString())
-          }
-        }
-      })
+      console.log('提交项目数据:', projectData)
 
-      // 添加文件
-      if (formValues.coverImage)
-        submitData.append('coverImage', formValues.coverImage)
-      if (formValues.shortVideo)
-        submitData.append('shortVideo', formValues.shortVideo)
-      if (formValues.longVideo)
-        submitData.append('longVideo', formValues.longVideo)
-
-      console.log('提交数据:', Object.fromEntries(submitData))
-
-      // 模拟 API 调用
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // 调用真实API
+      const response = await acceleratorAPI.createProject(projectData)
+      console.log('API响应:', response)
 
       setSubmitted(true)
     } catch (error) {
@@ -252,10 +244,10 @@ export const SubmitProjectPage: React.FC = () => {
               项目已提交成功。我们会在审核后，通过邮箱联系你。
             </p>
             <button
-              onClick={() => navigate(`/projects/liqpass`)}
+              onClick={() => navigate(`/accelerator/projects`)}
               className='btn btn-primary'
             >
-              查看项目页面
+              查看项目列表
             </button>
           </div>
         </div>
@@ -574,6 +566,23 @@ export const SubmitProjectPage: React.FC = () => {
                   </div>
                 </div>
               </section>
+
+              {/* 表单验证状态 */}
+              {Object.keys(errors).length > 0 && (
+                <div className='p-3 bg-red-50 border border-red-200 rounded-md'>
+                  <div className='flex items-center space-x-2 text-red-800'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path fillRule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z' clipRule='evenodd' />
+                    </svg>
+                    <span className='text-sm font-medium'>请完成所有必填项</span>
+                  </div>
+                  <ul className='mt-2 text-xs text-red-600 space-y-1'>
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>• {message}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* 提交按钮 */}
               <div className='flex justify-end'>

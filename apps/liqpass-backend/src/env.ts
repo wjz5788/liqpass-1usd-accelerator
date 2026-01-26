@@ -9,6 +9,7 @@ type Env = {
   QUOTE_SIGNER_PK?: string
   CHECKOUT_CONTRACT?: string
   CHAIN_ID: number
+  BASE_RPC?: string
 }
 
 function requireString(name: keyof Omit<Env, 'PORT'>): string {
@@ -48,4 +49,5 @@ export const env: Env = {
   QUOTE_SIGNER_PK: optionalString('QUOTE_SIGNER_PK'),
   CHECKOUT_CONTRACT: optionalString('CHECKOUT_CONTRACT'),
   CHAIN_ID: parseChainId(process.env.CHAIN_ID),
+  BASE_RPC: optionalString('BASE_RPC'),
 }
